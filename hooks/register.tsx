@@ -732,6 +732,16 @@ export const register: Register = on => {
     const cwd = (await $.session.cwd()).replace(/\\/g, '/').replace(/\/$/, '')
     const fullPath = (path: string) => (/^(~|\/|[A-Za-z]:)/.test(path) ? path : `${cwd}/${path}`)
     /** A row that shows its whole path in a small card while the pointer is on it. */
+    /**
+     * A hover group per path. A scope holds 64 characters, so a cut-off path
+     * would put every long path with the same start in one group, and all
+     * their cards would open at once: a short hash of the whole path instead.
+     */
+    const scopeOf = (kind: 'p' | 'd', path: string) => {
+      let hash = 5381
+      for (const ch of path) hash = (Math.imul(hash, 33) + ch.charCodeAt(0)) | 0
+      return `${kind}:${(hash >>> 0).toString(36)}`
+    }
     const withPath = (key: string, row: RenderChildren, path: string) => (
       <Box flexDirection="column" hover={{ scope: key }}>
         {row}
@@ -739,14 +749,18 @@ export const register: Register = on => {
         <Box
           position="absolute"
           top={1}
-          left={2}
+          left={0}
           display="none"
           hover={{ scope: key, display: 'flex' }}
           backgroundColor="#2B2B2B"
           paddingX={1}
         >
-          <Text color="#E8E8E8" wrap="wrap">
-            {path}
+          {/* The folders dim, the file or folder itself bright: clear which one it is. */}
+          <Text wrap="wrap">
+            <Text color="#9A9A9A">{path.slice(0, path.lastIndexOf('/') + 1)}</Text>
+            <Text color="#FFFFFF" bold>
+              {path.slice(path.lastIndexOf('/') + 1)}
+            </Text>
           </Text>
         </Box>
       </Box>
@@ -789,7 +803,7 @@ export const register: Register = on => {
       )
       return (
         <Box flexDirection="column">
-          {withPath(`p:${file.path}`.slice(0, 64), row, fullPath(file.path))}
+          {withPath(scopeOf('p', file.path), row, fullPath(file.path))}
           {isOpen && change(file)}
         </Box>
       )
@@ -811,7 +825,7 @@ export const register: Register = on => {
       }
       lines.push(
         withPath(
-          `d:${folder}`.slice(0, 64),
+          scopeOf('d', folder),
           <Text color="claude" wrap="truncate-start">
             ▾ {folder === '.' ? 'project folder' : `${shortPath(folder)}/`}
           </Text>,

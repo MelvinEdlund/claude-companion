@@ -35,14 +35,17 @@ const words = (n: unknown): string => {
 const DART_NEXT = { game: 'dart' }
 
 /** What the engine would answer beneath the plugin; `stored` is what the store holds. */
-function engine(on: On, given: Record<string, unknown> = {}, toolResult: Record<string, unknown> = {}) {
+/** A tool call's result: the same for every call, or made from the call. */
+type ToolResult = Record<string, unknown> | ((call: Record<string, unknown>) => Record<string, unknown>)
+
+function engine(on: On, given: Record<string, unknown> = {}, toolResult: ToolResult = {}) {
   const stored: Record<string, unknown> = { game: 'hoops', ...given }
   on('command.register', () => ({ value: { command: 'panel' } }))
   on('ui.open', () => ({ value: { isPlaced: true } }))
   on('ui.close', () => ({ value: undefined }))
   on('session.start', (_, e) => ({ cwd: e.cwd }))
   on('prompt.submit', (_, e) => e)
-  on('tool.call', () => ({ result: toolResult }))
+  on('tool.call', (_, e) => ({ result: typeof toolResult === 'function' ? toolResult(e as Record<string, unknown>) : toolResult }))
   // A Wednesday afternoon: no nightcap, no weekend sunglasses.
   on('clock.now', () => ({ value: new Date(2026, 10, 18, 14, 0).getTime() }))
   on('clock.every', () => ({ value: undefined }))
@@ -543,5 +546,31 @@ test('darts: hovering a helper names it and what it does', async ($, on) => {
   await $.tool.call({ tool: 'Agent', subagent_type: 'implementer', description: 'Build the pane', prompt: 'do it' })
   await hover(ui, MIKE)
   expect(await play(ui)).toContain('Mike · Builder')
+  await ui.unmount()
+})
+
+test('two long paths with the same start each get a hover card of their own', async ($, on) => {
+  const deep = '/repo/a-very-long-folder-name/that-goes-on/and-on-past-sixty-four-characters'
+  engine(on, {}, call => ({ filePath: call.file_path, structuredPatch: [{ newStart: 1, lines: ['+x'] }] }))
+  on('session.cwd', () => ({ value: '/repo' }))
+  await start($)
+  await $.prompt.submit({ text: 'change it', wait: false, origin: { kind: 'composer' } })
+  await $.tool.call({ tool: 'Edit', file_path: `${deep}/first.ts`, old_string: 'a', new_string: 'x' } as never)
+  await $.tool.call({ tool: 'Edit', file_path: `${deep}/second.ts`, old_string: 'a', new_string: 'x' } as never)
+  const ui = await $.ui.mount(pane('terminal', 40))
+  // The scope of every hidden card, keyed by the path it shows.
+  const scopes = new Map<string, string>()
+  const walk = (n: unknown) => {
+    if (!n || typeof n !== 'object') return
+    const node = n as { props?: { display?: string }; hover?: { scope?: string }; children?: unknown }
+    if (node.props?.display === 'none' && node.hover?.scope) scopes.set(words(node).trim(), node.hover.scope)
+    for (const child of [].concat((node.children ?? []) as never)) walk(child)
+  }
+  walk(await ui.drawn())
+  const first = [...scopes].find(([path]) => path.endsWith('first.ts'))?.[1]
+  const second = [...scopes].find(([path]) => path.endsWith('second.ts'))?.[1]
+  expect(first).toBeDefined()
+  expect(second).toBeDefined()
+  expect(first).not.toBe(second)
   await ui.unmount()
 })

@@ -572,8 +572,8 @@ const Hoops: ClientModule<PlayProps, Play> = (props, surface) => {
   const label = (text: string, x: number, row: number, room: number) => {
     const shown = shortly(text, room)
     const col = clamp(Math.round(x / 2), 0, Math.max(0, columns - shown.length))
-    // Over the head, or a row or two higher when the hoop or a word is in the way.
-    const free = [row, row - 1, row - 2].find(r => r > 0 && isOpen(r, col, shown.length))
+    // Over the head, or up to three rows higher when the hoop or a word is in the way.
+    const free = [row, row - 1, row - 2, row - 3].find(r => r > 0 && isOpen(r, col, shown.length))
     if (shown !== '' && free !== undefined) write(free, col, plain(shown))
   }
   // The crab under the pointer: a small card with its name, level and work.
@@ -598,7 +598,11 @@ const Hoops: ClientModule<PlayProps, Play> = (props, surface) => {
   if (card) {
     const width = Math.min(columns, Math.max(...card.lines.map(line => [...line].length)) + 2)
     const col = clamp(Math.round(card.x / 2 - width / 2), 0, Math.max(0, columns - width))
-    const row = clamp(Math.floor(card.top / 2) - card.lines.length, 1, Math.max(1, rows - card.lines.length))
+    // Just over the crab, or higher: whichever row hides least of the game (the hoop, the board).
+    const over = clamp(Math.floor(card.top / 2) - card.lines.length, 1, Math.max(1, rows - card.lines.length))
+    const hidden = (top: number) =>
+      card.lines.reduce((n, _, i) => n + (cells[top + i]?.slice(col, col + width).filter(cell => cell.ch !== ' ').length ?? 0), 0)
+    const row = Array.from({ length: over }, (_, k) => over - k).reduce((best, top) => (hidden(top) < hidden(best) ? top : best), over)
     card.lines.forEach((line, i) => {
       const chars = [...line]
       const fitted = chars.length > width - 2 ? [...chars.slice(0, width - 3), '…'] : chars

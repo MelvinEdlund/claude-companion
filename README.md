@@ -10,7 +10,7 @@ Also included: everyday skills, a set of coding rules, and an output style for s
 
 [![MIT License](https://img.shields.io/badge/license-MIT-D97757?style=flat-square)](LICENSE)
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-D97757?style=flat-square)](https://docs.claude.com/claude-code)
-[![Tests](https://img.shields.io/badge/tests-27%20passing-7CC38A?style=flat-square)](hooks/companion.test.tsx)
+[![Tests](https://img.shields.io/badge/tests-28%20passing-7CC38A?style=flat-square)](hooks/companion.test.tsx)
 
 <br>
 
