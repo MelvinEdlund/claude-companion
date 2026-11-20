@@ -1,0 +1,11 @@
+{
+  "name": "companion-kit",
+  "version": "1.0.0",
+  "description": "A calm companion pane for Claude Code: the files Claude changed, what it and its subagents are doing, and a tiny game to play while you wait. Plus everyday skills.",
+  "author": { "name": "MelvinEdlund", "url": "https://github.com/MelvinEdlund" },
+  "homepage": "https://github.com/MelvinEdlund/claude-code-kit",
+  "repository": "https://github.com/MelvinEdlund/claude-code-kit",
+  "license": "MIT",
+  "keywords": ["claude-code", "plugin", "companion", "panel", "subagents", "diff", "focus", "game", "skills"],
+  "types": "./types/index.d.ts"
+}

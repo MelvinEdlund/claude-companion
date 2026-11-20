@@ -1,0 +1,6 @@
+# Written by Claude Code when the plugin loads; generated per machine.
+.claude-plugin/types/
+tsconfig.json
+node_modules/
+.DS_Store
+Thumbs.db
