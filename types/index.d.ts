@@ -55,8 +55,8 @@ declare module 'claude-code' {
       helpers: Shaped<Helper[]>
       focus: Shaped<Focus>
       streak: Shaped<Streak>
-      /** The best golf run, in points, kept across sessions in the store. */
-      golfBest: Shaped<number>
+      /** The best hoops run, in points, kept across sessions in the store. */
+      hoopsBest: Shaped<number>
       /** The best round of darts, in points, kept across sessions in the store. */
       dartBest: Shaped<number>
       /** The next step the last answer recommended, for Claude's tip bubble. */

@@ -1,6 +1,6 @@
 import type { ClientModule, RenderChildren } from 'claude-code'
 
-// The other playground, played every other session (golf.tsx the rest): darts.
+// The other playground, played every other session (hoops.tsx the rest): darts.
 //
 // - A tiny ball waits on a peg at the left; the board stands at the right
 //   edge with holes through it. Pull back from the ball and let go: the ball

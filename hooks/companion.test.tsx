@@ -36,7 +36,7 @@ const DART_NEXT = { game: 'dart' }
 
 /** What the engine would answer beneath the plugin; `stored` is what the store holds. */
 function engine(on: On, given: Record<string, unknown> = {}, toolResult: Record<string, unknown> = {}) {
-  const stored: Record<string, unknown> = { game: 'golf', ...given }
+  const stored: Record<string, unknown> = { game: 'hoops', ...given }
   on('command.register', () => ({ value: { command: 'panel' } }))
   on('ui.open', () => ({ value: { isPlaced: true } }))
   on('ui.close', () => ({ value: undefined }))
@@ -181,7 +181,7 @@ test('tokens unlock gifts: the newest ball is the one played with', async ($, on
   await ui.unmount()
 })
 
-test('golf: Claude can be picked up, thrown, and walks back to its spot', { timeoutMs: 30_000 }, async ($, on) => {
+test('hoops: Claude can be picked up, thrown, and walks back to its spot', { timeoutMs: 30_000 }, async ($, on) => {
   engine(on)
   await start($)
   const ui = await $.ui.mount(pane('terminal'))
@@ -226,9 +226,9 @@ test('a prompt turns the figure to thinking', async ($, on) => {
   await ui.unmount()
 })
 
-// ---------------------------------------------------------------- golf
+// ---------------------------------------------------------------- hoops
 
-test('golf: a shot is a pull and a release from the slingshot; a miss spends a try', async ($, on) => {
+test('hoops: a shot is a pull and a release from the slingshot; a miss spends a try', async ($, on) => {
   engine(on)
   await start($)
   const ui = await $.ui.mount(pane('terminal'))
@@ -249,7 +249,7 @@ test('golf: a shot is a pull and a release from the slingshot; a miss spends a t
   expect((await cellsOf(ui, BALL))[0]).toEqual(sling)
   await ui.unmount()
 })
-test('golf: the ball cannot be carried, only shot', async ($, on) => {
+test('hoops: the ball cannot be carried, only shot', async ($, on) => {
   engine(on)
   await start($)
   const ui = await $.ui.mount(pane('terminal'))
@@ -263,7 +263,7 @@ test('golf: the ball cannot be carried, only shot', async ($, on) => {
   await ui.unmount()
 })
 
-test('golf: a shot through the hoop scores, and a new hoop follows', { timeoutMs: 60_000 }, async ($, on) => {
+test('hoops: a shot through the hoop scores, and a new hoop follows', { timeoutMs: 60_000 }, async ($, on) => {
   engine(on)
   await start($)
   const ui = await $.ui.mount(pane('terminal', 32))
@@ -287,8 +287,8 @@ test('golf: a shot through the hoop scores, and a new hoop follows', { timeoutMs
   expect(seen).toMatch(/★ [1-9]/)
   await ui.unmount()
 })
-test('golf: a better round is kept as the record', async ($, on) => {
-  engine(on, { golf: 120 })
+test('hoops: a better round is kept as the record', async ($, on) => {
+  engine(on, { hoops: 120 })
   await start($)
   const ui = await $.ui.mount(pane('terminal'))
   await ui.resize({ columns: 40, rows: 10, in: 'play' })
@@ -439,7 +439,7 @@ test('darts: Claude can be picked up, thrown, and walks home', { timeoutMs: 30_0
   await ui.unmount()
 })
 
-test('golf: three misses at one hoop end the run', { timeoutMs: 30_000 }, async ($, on) => {
+test('hoops: three misses at one hoop end the run', { timeoutMs: 30_000 }, async ($, on) => {
   engine(on)
   await start($)
   const ui = await $.ui.mount(pane('terminal'))
@@ -479,7 +479,7 @@ test('while Claude works, a few words over its head say what it does', async ($,
   await $.prompt.submit({ text: 'check', wait: false, origin: { kind: 'composer' } })
   const ui = await $.ui.mount(pane('terminal', 40))
   await ui.resize({ columns: 40, rows: 8, in: 'play' })
-  await $.tool.call({ tool: 'Read', file_path: '/repo/src/golf.tsx' } as never)
+  await $.tool.call({ tool: 'Read', file_path: '/repo/src/hoops.tsx' } as never)
   await ui.redraw()
   expect(words(await ui.drawn())).toContain('Thinking')
   await ui.unmount()

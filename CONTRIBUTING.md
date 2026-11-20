@@ -16,7 +16,7 @@ The pane sits beside someone's work for hours. Anything added to it should:
 ```
 .claude-plugin/     plugin.json, marketplace.json, icon
 hooks/register.tsx  the pane: files, helpers, status, commands
-hooks/golf.tsx      golf (a Client surface module)
+hooks/hoops.tsx     hoops (a Client surface module)
 hooks/dart.tsx      darts (a Client surface module)
 hooks/*.test.tsx    tests, run by `claude plugin test`
 types/index.d.ts    the plugin's state contract

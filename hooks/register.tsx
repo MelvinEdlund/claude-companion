@@ -9,7 +9,7 @@ import type { FileEntry, Focus, Helper, Mood, Streak, Tokens } from '../types'
 // From the top: one line per subagent at work; the files changed this
 // session, grouped by folder (a click folds a file's latest change out under
 // it, hovering shows its whole path); Claude's status in two quiet lines; and
-// a playground where Claude lives (golf.tsx or dart.tsx, picked at random each
+// a playground where Claude lives (hoops.tsx or dart.tsx, picked at random each
 // session).
 
 const PANE = 'companion'
@@ -39,8 +39,8 @@ const helpers = atom({ plugin: 'companion-kit', key: 'helpers' } as const, [] as
 const focus = atom({ plugin: 'companion-kit', key: 'focus' } as const, { day: '', ms: 0 } as Focus, { shape: 'focus-1' })
 /** When the current run of turns began, and when the last turn ended. */
 const streak = atom({ plugin: 'companion-kit', key: 'streak' } as const, { start: 0, lastEnd: 0 } as Streak, { shape: 'streak-1' })
-/** The best golf run and the best round of darts, in points, kept across sessions. */
-const golfBest = atom({ plugin: 'companion-kit', key: 'golfBest' } as const, 0, { shape: 'golfBest-1' })
+/** The best hoops run and the best round of darts, in points, kept across sessions. */
+const hoopsBest = atom({ plugin: 'companion-kit', key: 'hoopsBest' } as const, 0, { shape: 'hoopsBest-1' })
 const dartBest = atom({ plugin: 'companion-kit', key: 'dartBest' } as const, 0, { shape: 'dartBest-1' })
 /** The next step the last answer recommended (its "Next step:" command), '' when none. */
 const tip = atom({ plugin: 'companion-kit', key: 'tip' } as const, '', { shape: 'tip-1' })
@@ -54,8 +54,8 @@ const tokens = atom({ plugin: 'companion-kit', key: 'tokens' } as const, { total
 const xp = atom({ plugin: 'companion-kit', key: 'xp' } as const, {} as Record<string, number>, { shape: 'xp-1' })
 
 /** Which game this session plays: picked at random each session, so neither grows stale. */
-type Game = 'golf' | 'dart'
-let game: Game = 'golf'
+type Game = 'hoops' | 'dart'
+let game: Game = 'hoops'
 let ticker: { cancel: () => void } | undefined
 let lastKey = -1
 let editsThisTurn = 0
@@ -344,7 +344,7 @@ const openPane = ($: EngineInterface, focusIt = false) =>
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     await $.command.register({ name: 'companion', description: 'Open the companion pane: changed files, helpers and Claude' })
-    await $.command.register({ name: 'game', description: 'Switch the companion pane game: golf or darts' })
+    await $.command.register({ name: 'game', description: 'Switch the companion pane game: hoops or darts' })
     void openPane($)
 
     const startedAt = await $.clock.now()
@@ -353,8 +353,8 @@ export const register: Register = on => {
     await update($, since, old => (old === 0 ? startedAt : old))
     const saved = Number((await $.store.get(`focus:${today}`)) ?? 0)
     await update($, focus, old => (old.day === today && old.ms >= saved ? old : { day: today, ms: saved }))
-    const savedGolf = Number((await $.store.get('golf')) ?? 0)
-    await update($, golfBest, old => Math.max(old, savedGolf))
+    const savedHoops = Number((await $.store.get('hoops')) ?? 0)
+    await update($, hoopsBest, old => Math.max(old, savedHoops))
     const savedDart = Number((await $.store.get('dart')) ?? 0)
     await update($, dartBest, old => Math.max(old, savedDart))
     const savedTotal = Number((await $.store.get('tokens')) ?? 0)
@@ -368,7 +368,7 @@ export const register: Register = on => {
     if (typeof savedXp === 'string') await update($, xp, () => JSON.parse(savedXp) as Record<string, number>)
     // A game pinned in the store wins (the tests pin one); otherwise a coin toss.
     const pinned = await $.store.get('game')
-    game = pinned === 'golf' || pinned === 'dart' ? pinned : Math.random() < 0.5 ? 'golf' : 'dart'
+    game = pinned === 'hoops' || pinned === 'dart' ? pinned : Math.random() < 0.5 ? 'hoops' : 'dart'
 
     // Redraw only when the picture changes: a breath every 5 s, a blink, the
     // minute in the text. Nothing ticks faster than that.
@@ -385,9 +385,9 @@ export const register: Register = on => {
   })
 
   on('command.run', { command: 'game' }, async $ => {
-    game = game === 'golf' ? 'dart' : 'golf'
+    game = game === 'hoops' ? 'dart' : 'hoops'
     await update($, frame, n => n + 1) // redraws the pane with the other game
-    return { text: game === 'golf' ? 'Golf: pull back from the ball and let go.' : 'Darts: pull back from the ball and hit the board.' }
+    return { text: game === 'hoops' ? 'Hoops: pull back from the ball and let go.' : 'Darts: pull back from the ball and hit the board.' }
   })
 
   on('command.run', { command: 'companion' }, async $ => {
@@ -446,14 +446,14 @@ export const register: Register = on => {
     return count($, ran, 'main')
   }).catch(($, e, next) => next(e))
 
-  // The playground posts a better round (golf or darts) and the experience play earned.
+  // The playground posts a better round (hoops or darts) and the experience play earned.
   on('ui.message', { requestId: PANE }, async ($, e) => {
     if (e.element !== 'play') return {}
     const sent = e.data as { round?: unknown; dart?: unknown; xp?: unknown } | null
     if (typeof sent?.round === 'number') {
       const round = sent.round
-      await update($, golfBest, old => Math.max(old, round))
-      await $.store.set('golf', await read($, golfBest))
+      await update($, hoopsBest, old => Math.max(old, round))
+      await $.store.set('hoops', await read($, hoopsBest))
     }
     if (typeof sent?.dart === 'number') {
       const points = sent.dart
@@ -694,8 +694,8 @@ export const register: Register = on => {
       Client && playRows > 0 ? (
         <Box flexDirection="column" flexShrink={0}>
           {status}
-          {game === 'golf' ? (
-            <Client key="play" module="./golf.tsx" width="100%" height={playRows} props={{ ...play, best: await read($, golfBest) }} />
+          {game === 'hoops' ? (
+            <Client key="play" module="./hoops.tsx" width="100%" height={playRows} props={{ ...play, best: await read($, hoopsBest) }} />
           ) : (
             <Client key="play" module="./dart.tsx" width="100%" height={playRows} props={{ ...play, best: await read($, dartBest) }} />
           )}

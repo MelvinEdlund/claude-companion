@@ -15,7 +15,7 @@ Also included: everyday skills, a set of coding rules, and an output style for s
 
 <br>
 
-<img src="assets/hero.svg" alt="Claude Code with the companion pane docked on the right: changed files with one folded open, two helpers at work, and a golf ball in flight" width="100%">
+<img src="assets/hero.svg" alt="Claude Code with the companion pane docked on the right: changed files with one folded open, two helpers at work, and a ball in flight" width="100%">
 
 </div>
 
@@ -65,7 +65,7 @@ The pane stays nearly still: **no notifications, no streaks to keep up, nothing 
 | --- | --- |
 | 🦀 **Companion pane** | Changed files grouped by folder. Click a file to fold out its change; hover it to see the full path. Two calm status lines, and a focus timer that suggests a break after a long stretch. |
 | 🧑‍🤝‍🧑 **Helpers** | Every subagent Claude starts joins the pane: Bea the builder, Tess the tester, Rex the reviewer and more. Each has a name, a hat and a level, and shows a short label of what it is doing right now. |
-| ⛳ **Two small games** | Golf and darts, picked at random each session. Skill-based, no timers, best scores kept. |
+| 🏀 **Two small games** | Hoops and darts, picked at random each session. Skill-based, no timers, best scores kept. |
 | 💬 **Next-step tips** | When an answer ends with `Next step: /something`, Claude shows that command in a speech bubble. |
 | 📈 **Levels from real work** | Tokens Claude spends level it up; helpers level from their own work. A new ball arrives every 100k tokens. |
 | 🛠️ **Skills** | `/commit`, `/pr-check` and `/spec`: safe commits, a pre-flight check before a pull request, and a spec before you build. |
@@ -78,13 +78,13 @@ The pane stays nearly still: **no notifications, no streaks to keep up, nothing 
 
 <table>
 <tr>
-<td width="50%"><img src="assets/golf.svg" alt="Golf: a ball in flight from the slingshot toward a hoop, its path traced behind it"></td>
+<td width="50%"><img src="assets/hoops.svg" alt="Hoops: a ball in flight from the slingshot toward a hoop, its path traced behind it"></td>
 <td width="50%"><img src="assets/darts.svg" alt="Darts: a dart hits the bullseye for 25 and Claude cheers"></td>
 </tr>
 <tr>
 <td>
 
-**Golf.** The ball sits in a slingshot at the bottom left. Pull back from it and let go. It flies on a real arc, bounces off the walls, and can bounce off Claude too. Each hoop gives you three tries. A hit moves the hoop to a new height. A swish, or a hit on the first try, scores extra.
+**Hoops.** The ball sits in a slingshot at the bottom left. Pull back from it and let go. It flies on a real arc, bounces off the walls, and can bounce off Claude too. Each hoop gives you three tries. A hit moves the hoop to a new height. A swish, or a hit on the first try, scores extra.
 
 </td>
 <td>
@@ -128,7 +128,7 @@ Helpers keep their levels from one session to the next.
 | Command | What it does |
 | --- | --- |
 | `/companion` | Opens the companion pane. Press Esc to return to the prompt. |
-| `/game` | Switches between golf and darts. |
+| `/game` | Switches between hoops and darts. |
 | `/commit` | Commits and pushes safely. It never commits on `main` and never force-pushes or skips hooks. |
 | `/pr-check` | Checks for conflicts and overlapping files against the target branch and runs your checks. It then prints the exact `gh pr create` command. |
 | `/spec` | Writes the goal, testable acceptance criteria and exact changes before any code. Unclear points become questions to you. |

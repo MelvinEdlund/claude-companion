@@ -415,7 +415,7 @@ function handle(surface: Surface, e: PointerEvent) {
 
 type Cell = { ch: string; fg: string; bg: string; bold: boolean; dim: boolean }
 
-const Golf: ClientModule<PlayProps, Play> = (props, surface) => {
+const Hoops: ClientModule<PlayProps, Play> = (props, surface) => {
   const { Box, Text } = surface.elements
   const columns = surface.columns
   const rows = surface.rows
@@ -601,4 +601,4 @@ const Golf: ClientModule<PlayProps, Play> = (props, surface) => {
   )
 }
 
-export default Golf
+export default Hoops
