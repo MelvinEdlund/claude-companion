@@ -36,4 +36,4 @@ Turn off when the reader says "normal mode".
 ✅ Done: <what now works, one or two lines>
 👉 Next step: `<ONE command or action the reader can do in under 2 minutes>`
 
-The next-step line is the reply's very last line, holds exactly one command in backticks, and nothing follows it. When nothing is left, write `👉 Next step: nothing`. (The claude-code-kit companion pane shows this command in Claude's speech bubble.)
+The next-step line is the reply's very last line, holds exactly one command in backticks, and nothing follows it. When nothing is left, write `👉 Next step: nothing`. (The claude-companion pane shows this command in Claude's speech bubble.)

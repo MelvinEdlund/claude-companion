@@ -97,6 +97,14 @@ async function cellsOf(ui: Ui, color: string): Promise<[number, number][]> {
   return found
 }
 const BALL = '#F2F2F2'
+/** Mike, the implementer: his body's color. */
+const MIKE = '#E0B341'
+
+/** Rests the pointer, no button down, on the first cell drawn in a color. */
+async function hover(ui: Ui, color: string) {
+  const [x, y] = (await cellsOf(ui, color))[0]!
+  await ui.pointer({ type: 'move', x: x!, y: y!, in: 'play' })
+}
 const RIM = '#E5533D'
 
 /** A press, a drag through the points and a release: a throw when the last steps are quick. */
@@ -199,13 +207,31 @@ test('hoops: Claude can be picked up, thrown, and walks back to its spot', { tim
   expect(Math.min(...(await claudeAt()))).toBe(home)
   await ui.unmount()
 })
-test('a subagent arrives: the top names it and what it does', async ($, on) => {
+test('a subagent arrives: hovering it in the game names it and what it does, the top stays clear', async ($, on) => {
   engine(on)
   await start($)
   await $.prompt.submit({ text: 'build', wait: false, origin: { kind: 'composer' } })
   const ui = await $.ui.mount(pane('terminal'))
+  await ui.resize({ columns: 40, rows: 8, in: 'play' })
   await $.tool.call({ tool: 'Agent', subagent_type: 'implementer', description: 'Build the pane', prompt: 'do it' })
-  expect(words(await ui.drawn())).toContain('Bea')
+  expect(words(await ui.drawn())).not.toContain('Mike')
+  expect(await play(ui)).not.toContain('Mike')
+  await hover(ui, MIKE)
+  expect(await play(ui)).toContain('Mike · Builder')
+  await ui.pointer({ type: 'leave', x: 0, y: 0, in: 'play' })
+  expect(await play(ui)).not.toContain('Mike')
+  await ui.unmount()
+})
+
+test('hovering Claude shows its level and what it is doing', async ($, on) => {
+  engine(on)
+  await start($)
+  const ui = await $.ui.mount(pane('terminal'))
+  await ui.resize({ columns: 40, rows: 8, in: 'play' })
+  await hover(ui, '#D97757')
+  const drawn = await play(ui)
+  expect(drawn).toContain('Claude · Lv 1')
+  expect(drawn).toContain('Waiting for you')
   await ui.unmount()
 })
 test('a short pane keeps the still figure', async ($, on) => {
@@ -333,8 +359,10 @@ test('a helper keeps its level from session to session, shown by its name', asyn
   await start($)
   await $.prompt.submit({ text: 'build', wait: false, origin: { kind: 'composer' } })
   const ui = await $.ui.mount(pane('terminal'))
+  await ui.resize({ columns: 40, rows: 8, in: 'play' })
   await $.tool.call({ tool: 'Agent', subagent_type: 'implementer', description: 'Build the pane', prompt: 'do it' })
-  expect(words(await ui.drawn())).toMatch(/Bea\s*Lv3/)
+  await hover(ui, MIKE)
+  expect(await play(ui)).toContain('Mike · Builder Lv3')
   await ui.unmount()
 })
 
@@ -466,7 +494,7 @@ test('the helpers stand in the game, each with a word for what it does', async (
   await $.tool.call({ tool: 'Read', file_path: '/repo/src/a.ts', agentId: 'a1' } as never)
   const ui = await $.ui.mount(pane('terminal', 40))
   await ui.resize({ columns: 40, rows: 8, in: 'play' })
-  // Bea, yellow, on the floor, and over her head what she does.
+  // Mike, yellow, on the floor, and over his head what he does.
   expect((await cellsOf(ui, '#E0B341')).length).toBeGreaterThan(0)
   expect(await play(ui)).toContain('reads')
   await ui.unmount()
@@ -503,5 +531,17 @@ test('a click on a changed file folds its change out; its whole path is there fo
   expect(open).toContain('−world')
   await ui.press({ key: 'f:src/a.ts' })
   expect(words(await ui.drawn())).not.toContain('+hello')
+  await ui.unmount()
+})
+
+test('darts: hovering a helper names it and what it does', async ($, on) => {
+  engine(on, DART_NEXT)
+  await start($)
+  await $.prompt.submit({ text: 'build', wait: false, origin: { kind: 'composer' } })
+  const ui = await $.ui.mount(pane('terminal'))
+  await ui.resize({ columns: 40, rows: 8, in: 'play' })
+  await $.tool.call({ tool: 'Agent', subagent_type: 'implementer', description: 'Build the pane', prompt: 'do it' })
+  await hover(ui, MIKE)
+  expect(await play(ui)).toContain('Mike · Builder')
   await ui.unmount()
 })

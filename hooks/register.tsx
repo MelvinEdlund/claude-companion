@@ -193,15 +193,15 @@ type Job = { name: string; title: string; body: string; hat: string; glasses: st
 
 /** Common subagent types, each a character of its own; any other type gets a helper's look. */
 const JOBS: Record<string, Job> = {
-  Explore: { name: 'Sam', title: 'Scout', body: '#C9A66B', hat: '..GGGGGG..', glasses: '', gearColor: '#8B5E3C' }, // deerstalker
-  Plan: { name: 'Pip', title: 'Planner', body: '#E8DCC2', hat: '...GGGG...', glasses: '', gearColor: '#1E1E1E' }, // top hat
-  'general-purpose': { name: 'Hal', title: 'Helper', body: '#A0A0A0', hat: '', glasses: '', gearColor: '#A0A0A0' },
-  explorer: { name: 'Ivy', title: 'Explorer', body: '#4FB3A9', hat: 'GGGGGGGGGG', glasses: '', gearColor: '#C2A061' }, // safari hat
-  implementer: { name: 'Bea', title: 'Builder', body: '#E0B341', hat: '.GGGGGGGG.', glasses: '', gearColor: '#F28C28' }, // hard hat
-  'test-writer': { name: 'Tess', title: 'Tester', body: '#7BB662', hat: 'GGGGGG....', glasses: '', gearColor: '#2F6B2A' }, // cap
-  'code-reviewer': { name: 'Rex', title: 'Reviewer', body: '#9B7FD1', hat: '', glasses: '..G.GG.G..', gearColor: '#F5D547' }, // glasses
-  'security-reviewer': { name: 'Sid', title: 'Security', body: '#5B9BD5', hat: '.GGGGGGGG.', glasses: '', gearColor: '#2B3A55' }, // helmet
-  'ui-reviewer': { name: 'Uma', title: 'Designer', body: '#E07AA5', hat: '....GGGGGG', glasses: '', gearColor: '#7A2E52' }, // beret
+  Explore: { name: 'Hugh', title: 'Scout', body: '#C9A66B', hat: '..GGGGGG..', glasses: '', gearColor: '#8B5E3C' }, // deerstalker
+  Plan: { name: 'Mungus', title: 'Planner', body: '#E8DCC2', hat: '...GGGG...', glasses: '', gearColor: '#1E1E1E' }, // top hat
+  'general-purpose': { name: 'Al', title: 'Helper', body: '#A0A0A0', hat: '', glasses: '', gearColor: '#A0A0A0' },
+  explorer: { name: 'Phil', title: 'Explorer', body: '#4FB3A9', hat: 'GGGGGGGGGG', glasses: '', gearColor: '#C2A061' }, // safari hat
+  implementer: { name: 'Mike', title: 'Builder', body: '#E0B341', hat: '.GGGGGGGG.', glasses: '', gearColor: '#F28C28' }, // hard hat
+  'test-writer': { name: 'Oxlong', title: 'Tester', body: '#7BB662', hat: 'GGGGGG....', glasses: '', gearColor: '#2F6B2A' }, // cap
+  'code-reviewer': { name: 'Ben', title: 'Reviewer', body: '#9B7FD1', hat: '', glasses: '..G.GG.G..', gearColor: '#F5D547' }, // glasses
+  'security-reviewer': { name: 'Dover', title: 'Security', body: '#5B9BD5', hat: '.GGGGGGGG.', glasses: '', gearColor: '#2B3A55' }, // helmet
+  'ui-reviewer': { name: 'Anita', title: 'Designer', body: '#E07AA5', hat: '....GGGGGG', glasses: '', gearColor: '#7A2E52' }, // beret
 }
 const OTHER_BODIES = ['#4FB3A9', '#9B7FD1', '#5B9BD5', '#7BB662', '#E07AA5', '#E0B341']
 
@@ -673,12 +673,13 @@ export const register: Register = on => {
       id: helper.id,
       isDone: helper.doneAt !== undefined,
       doing: helper.doing,
+      level: levelOf(earned[helper.kind] ?? 0),
     }))
     // Claude's tip, small: your turn when it asks, a break after long work, else the next step.
     const nextStep = await read($, tip)
     const tipText = stored === 'needsYou' ? 'your turn!' : needsBreak && !look.isBusy ? 'take a break?' : nextStep !== '' ? `next: ${nextStep}` : ''
     const levels = { main: levelFor(earned.main ?? 0) }
-    const play = { pose: grid, palette: PALETTE, helpers: playHelpers, claudeDoing: look.isBusy ? doing : '', tokens: used.total, tip: tipText, levels }
+    const play = { pose: grid, palette: PALETTE, helpers: playHelpers, claudeDoing: look.isBusy ? doing : '', claudeMood: look.text, tokens: used.total, tip: tipText, levels }
     const status = [
       <Text wrap="truncate-end">
         <Text color={look.color} bold>
@@ -715,7 +716,8 @@ export const register: Register = on => {
     const pinned = (content: RenderChildren) => (
       <Box flexDirection="column" height={rows} justifyContent="space-between">
         <Box flexDirection="column" flexGrow={1} flexShrink={1} overflow="hidden">
-          {helpersView}
+          {/* With a playground, a helper's name and work show on hover there instead. */}
+          {Client && playRows > 0 ? undefined : helpersView}
           {content}
         </Box>
         {figures}

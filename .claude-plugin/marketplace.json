@@ -1,6 +1,6 @@
 {
   "name": "companion-kit",
-  "description": "claude-code-kit: a calm companion pane for Claude Code, with everyday skills.",
+  "description": "claude-companion: a calm companion pane for Claude Code, with everyday skills.",
   "owner": { "name": "MelvinEdlund" },
   "plugins": [{ "name": "companion-kit", "source": "./" }]
 }

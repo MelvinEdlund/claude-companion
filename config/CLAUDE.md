@@ -1,4 +1,4 @@
-# Coding rules (claude-code-kit)
+# Coding rules (claude-companion)
 
 General rules for every project. A project's own `CLAUDE.md` adds to these and wins where they disagree.
 

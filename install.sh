@@ -1,17 +1,17 @@
 #!/usr/bin/env sh
-# claude-code-kit installer for macOS and Linux.
+# claude-companion installer for macOS and Linux.
 # Safe to run again: it updates what it installed and never overwrites your own files.
 #
-#   curl -fsSL https://raw.githubusercontent.com/MelvinEdlund/claude-code-kit/main/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/MelvinEdlund/claude-companion/main/install.sh | sh
 #
 # Options (environment variables):
 #   KIT_RULES=0   skip adding the coding rules to ~/.claude/CLAUDE.md
 #   KIT_STYLE=0   skip the optional Focus output style
 set -eu
 
-REPO="MelvinEdlund/claude-code-kit"
+REPO="MelvinEdlund/claude-companion"
 CLAUDE_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
-KIT_DIR="$CLAUDE_DIR/claude-code-kit"
+KIT_DIR="$CLAUDE_DIR/claude-companion"
 IMPORT_LINE="@$KIT_DIR/config/CLAUDE.md"
 
 say() { printf '  %s\n' "$1"; }

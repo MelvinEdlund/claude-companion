@@ -1,16 +1,16 @@
-# claude-code-kit installer for Windows (PowerShell 5.1+).
+# claude-companion installer for Windows (PowerShell 5.1+).
 # Safe to run again: it updates what it installed and never overwrites your own files.
 #
-#   irm https://raw.githubusercontent.com/MelvinEdlund/claude-code-kit/main/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/MelvinEdlund/claude-companion/main/install.ps1 | iex
 #
 # Options (environment variables):
 #   $env:KIT_RULES = '0'   skip adding the coding rules to ~/.claude/CLAUDE.md
 #   $env:KIT_STYLE = '0'   skip the optional Focus output style
 $ErrorActionPreference = 'Stop'
 
-$Repo = 'MelvinEdlund/claude-code-kit'
+$Repo = 'MelvinEdlund/claude-companion'
 $ClaudeDir = if ($env:CLAUDE_CONFIG_DIR) { $env:CLAUDE_CONFIG_DIR } else { Join-Path $HOME '.claude' }
-$KitDir = Join-Path $ClaudeDir 'claude-code-kit'
+$KitDir = Join-Path $ClaudeDir 'claude-companion'
 $ImportLine = '@' + ((Join-Path $KitDir 'config/CLAUDE.md') -replace '\\', '/')
 
 function Write-Note($text) { Write-Host "  $text" }

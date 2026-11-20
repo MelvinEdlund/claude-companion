@@ -25,6 +25,10 @@ type PlayProps = {
   helpers: HelperProp[]
   /** What Claude does now, while it works; '' when it waits. */
   claudeDoing: string
+  /** Claude's mood in words ('Waiting for you'), for its card. */
+  claudeMood: string
+  /** Claude's level, for its card. */
+  levels: Record<string, { level: number; pct: number }>
   /** The best round of ten darts, in points. */
   best: number
 }
@@ -33,6 +37,8 @@ type Point = { x: number; y: number }
 type Popup = { text: string; x: number; y: number; until: number; color: string }
 type Bit = Point & { vx: number; vy: number; color: string; life: number }
 type Play = {
+  /** Where the pointer rests, unpressed: the crab under it shows its card. */
+  hover?: Point
   /** The playground's own clock, advanced only while something moves. */
   t: number
   isAwake: boolean
@@ -288,7 +294,7 @@ function step(s0: Play, w: number, h: number): Play {
 // ---------------------------------------------------------------- the helpers
 
 /** A subagent at work, from the panel: its character, and what it does now. */
-type HelperProp = { id: string; name: string; body: string; hat: string; glasses: string; gearColor: string; isDone: boolean; doing: string }
+type HelperProp = { id: string; name: string; body: string; hat: string; glasses: string; gearColor: string; isDone: boolean; doing: string; title: string; level: number }
 
 // A subagent's crab, smaller than Claude: a 10 x 3 body, its hat on a row above.
 const M_STAND = ['.OOKOOKOO.', 'OOOOOOOOOO', '.O.O..O.O.']
@@ -322,6 +328,10 @@ function helperGrid(helper: HelperProp, isCheering: boolean): { body: string[]; 
   return { body, top: body.findIndex(row => /[^.]/.test(row)) }
 }
 
+/** The card over a crab the pointer rests on. */
+const CARD_BG = '#2B2B2B'
+const CARD_TEXT = '#E8E8E8'
+
 type Surface = Parameters<ClientModule<PlayProps, Play>>[1]
 type PointerEvent = Parameters<Parameters<Surface['onPointer']>[0]>[0]
 
@@ -330,6 +340,17 @@ function handle(surface: Surface, e: PointerEvent) {
   if (!s || surface.columns === 0) return
   const at = { x: (e.fine?.x ?? e.x + 0.5) * 2, y: (e.fine?.y ?? e.y + 0.5) * 2 }
   const c = s.claude
+  // An unpressed pointer only points: the crab under it gets its card.
+  if (e.type === 'leave') {
+    if (s.hover) surface.setState({ ...s, hover: undefined })
+    return
+  }
+  if ((e.type === 'move' || e.type === 'enter') && e.button === undefined && !s.aim && s.claude.mode !== 'held') {
+    const was = s.hover
+    const isSameCell = was !== undefined && Math.floor(was.x / 2) === Math.floor(at.x / 2) && Math.floor(was.y / 2) === Math.floor(at.y / 2)
+    if (!isSameCell) surface.setState({ ...s, hover: at })
+    return
+  }
   if (e.type === 'down' && e.button === 'left') {
     const isReady = !s.ball.isFlying && s.nextAt === 0
     if (isReady && Math.hypot(at.x - s.ball.x, at.y - s.ball.y) <= 4) {
@@ -492,13 +513,42 @@ const Darts: ClientModule<PlayProps, Play> = (props, surface) => {
   const label = (text: string, x: number, row: number, room: number) => {
     const shown = shortly(text, room)
     const col = clamp(Math.round(x / 2), 0, Math.max(0, columns - shown.length))
-    // Over the head, or a row higher when the hoop or a word is in the way.
-    const free = [row, row - 1].find(r => isOpen(r, col, shown.length))
+    // Over the head, or a row or two higher when the hoop or a word is in the way.
+    const free = [row, row - 1, row - 2].find(r => r > 0 && isOpen(r, col, shown.length))
     if (shown !== '' && free !== undefined) write(free, col, plain(shown))
   }
-  if (props.claudeDoing !== '') label(props.claudeDoing, claude.x, Math.floor((pxTall - CLAUDE_H) / 2) - 1, 16)
-  // A helper has six columns: its verb alone, short: 'reads', 'edits', 'runs'.
-  for (const { helper, x } of spots) label(helper.isDone ? 'done' : verbOf(helper.doing), x, Math.floor((pxTall - 4) / 2) - 1, 6)
+  // The crab under the pointer: a small card with its name, level and work.
+  const hover = s.hover
+  const card = (() => {
+    if (!hover) return undefined
+    if (hover.x >= claude.x && hover.x <= claude.x + CLAUDE_W && hover.y >= claude.y - 1 && hover.y <= claude.y + CLAUDE_H) {
+      const lines = [`Claude · Lv ${props.levels.main?.level ?? 1}`, props.claudeDoing || props.claudeMood]
+      return { x: claude.x + CLAUDE_W / 2, top: claude.y, color: 'claude', lines }
+    }
+    const spot = spots.find(({ x }) => hover.x >= x && hover.x <= x + 10 && hover.y >= pxTall - 5)
+    if (!spot) return undefined
+    const { helper } = spot
+    const lines = [`${helper.name} · ${helper.title} Lv${helper.level}`, helper.isDone ? 'done' : helper.doing]
+    return { x: spot.x + 5, top: pxTall - 5, color: helper.body, lines } // over its hat
+  })()
+  if (!card) {
+    if (props.claudeDoing !== '') label(props.claudeDoing, claude.x, Math.floor((pxTall - CLAUDE_H) / 2) - 1, 16)
+    // A helper has six columns: its verb alone, short: 'reads', 'edits', 'runs'.
+    for (const { helper, x } of spots) label(helper.isDone ? 'done' : verbOf(helper.doing), x, Math.floor((pxTall - 4) / 2) - 1, 6)
+  }
+  if (card) {
+    const width = Math.min(columns, Math.max(...card.lines.map(line => [...line].length)) + 2)
+    const col = clamp(Math.round(card.x / 2 - width / 2), 0, Math.max(0, columns - width))
+    const row = clamp(Math.floor(card.top / 2) - card.lines.length, 1, Math.max(1, rows - card.lines.length))
+    card.lines.forEach((line, i) => {
+      const chars = [...line]
+      const fitted = chars.length > width - 2 ? [...chars.slice(0, width - 3), '…'] : chars
+      const padded = [' ', ...fitted, ...Array(Math.max(0, width - 1 - fitted.length)).fill(' ')]
+      padded.forEach((ch, k) => {
+        if (cells[row + i]?.[col + k]) cells[row + i]![col + k] = { ch, fg: i === 0 ? card.color : CARD_TEXT, bg: CARD_BG, bold: i === 0, dim: false }
+      })
+    })
+  }
   if (!s.isTouched) {
     const hint = 'pull back from the ball'
     const row = rows - 1

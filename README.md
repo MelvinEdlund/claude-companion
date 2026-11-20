@@ -2,7 +2,7 @@
 
 <img src=".claude-plugin/icon.png" width="96" height="96" alt="">
 
-# claude-code-kit
+# claude-companion
 
 **A calm companion pane for Claude Code.** See which files Claude changed, see what it and its helpers are doing, and play a small game while it works.
 
@@ -10,8 +10,7 @@ Also included: everyday skills, a set of coding rules, and an output style for s
 
 [![MIT License](https://img.shields.io/badge/license-MIT-D97757?style=flat-square)](LICENSE)
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-D97757?style=flat-square)](https://docs.claude.com/claude-code)
-[![Tests](https://img.shields.io/badge/tests-25%20passing-7CC38A?style=flat-square)](hooks/companion.test.tsx)
-[![PRs welcome](https://img.shields.io/badge/PRs-welcome-9B7FD1?style=flat-square)](CONTRIBUTING.md)
+[![Tests](https://img.shields.io/badge/tests-27%20passing-7CC38A?style=flat-square)](hooks/companion.test.tsx)
 
 <br>
 
@@ -26,19 +25,19 @@ Also included: everyday skills, a set of coding rules, and an output style for s
 **macOS / Linux**
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/MelvinEdlund/claude-code-kit/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/MelvinEdlund/claude-companion/main/install.sh | sh
 ```
 
 **Windows (PowerShell)**
 
 ```powershell
-irm https://raw.githubusercontent.com/MelvinEdlund/claude-code-kit/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/MelvinEdlund/claude-companion/main/install.ps1 | iex
 ```
 
 **Plugin only**, from inside Claude Code:
 
 ```
-/plugin install companion-kit --marketplace MelvinEdlund/claude-code-kit
+/plugin install companion-kit --marketplace MelvinEdlund/claude-companion
 ```
 
 Next, start `claude` in a terminal at least 110 columns wide and send a prompt. The pane opens beside the chat. You can also open it any time with `/companion`.
@@ -49,7 +48,7 @@ Next, start `claude` in a terminal at least 110 columns wide and send a prompt. 
 
 While Claude works you mostly wait. You can watch the transcript scroll, switch to another tab and lose your train of thought, or poll `git diff` every minute.
 
-claude-code-kit gives that waiting time a place to rest:
+claude-companion gives that waiting time a place to rest:
 
 - A narrow pane shows what is happening.
 - It shows what changed and who is working on it.
@@ -64,7 +63,7 @@ The pane stays nearly still: **no notifications, no streaks to keep up, nothing 
 | | |
 | --- | --- |
 | 🦀 **Companion pane** | Changed files grouped by folder. Click a file to fold out its change; hover it to see the full path. Two calm status lines, and a focus timer that suggests a break after a long stretch. |
-| 🧑‍🤝‍🧑 **Helpers** | Every subagent Claude starts joins the pane: Bea the builder, Tess the tester, Rex the reviewer and more. Each has a name, a hat and a level, and shows a short label of what it is doing right now. |
+| 🧑‍🤝‍🧑 **Helpers** | Every subagent Claude starts joins the playground: Mike the builder, Oxlong the tester, Hugh the scout and more. Hover one, or Claude, to see its name, level and what it is working on right now. |
 | 🏀 **Two small games** | Hoops and darts, picked at random each session. Skill-based, no timers, best scores kept. |
 | 💬 **Next-step tips** | When an answer ends with `Next step: /something`, Claude shows that command in a speech bubble. |
 | 📈 **Levels from real work** | Tokens Claude spends level it up; helpers level from their own work. A new ball arrives every 100k tokens. |
@@ -105,19 +104,19 @@ You can pick Claude up in either game and throw it around. It bounces off the wa
 
 ## Meet the helpers
 
-When Claude starts a subagent, a small character joins the playground. Agent types the kit does not know get Hal, a plain helper.
+When Claude starts a subagent, a small character joins the playground. Hover it to see its name, level and what it is working on. Agent types the kit does not know get Al, a plain helper. Some names pair up when their helpers work at the same time.
 
 | Agent type | Name | Role | Look |
 | --- | --- | --- | --- |
-| `Explore` | Sam | Scout | deerstalker |
-| `Plan` | Pip | Planner | top hat |
-| `general-purpose` | Hal | Helper | none |
-| `explorer` | Ivy | Explorer | safari hat |
-| `implementer` | Bea | Builder | hard hat |
-| `test-writer` | Tess | Tester | cap |
-| `code-reviewer` | Rex | Reviewer | glasses |
-| `security-reviewer` | Sid | Security | helmet |
-| `ui-reviewer` | Uma | Designer | beret |
+| `Explore` | Hugh | Scout | deerstalker |
+| `Plan` | Mungus | Planner | top hat |
+| `general-purpose` | Al | Helper | none |
+| `explorer` | Phil | Explorer | safari hat |
+| `implementer` | Mike | Builder | hard hat |
+| `test-writer` | Oxlong | Tester | cap |
+| `code-reviewer` | Ben | Reviewer | glasses |
+| `security-reviewer` | Dover | Security | helmet |
+| `ui-reviewer` | Anita | Designer | beret |
 
 Helpers keep their levels from one session to the next.
 
@@ -141,7 +140,7 @@ When a name clashes with a command you already have, the plugin skills are also 
 
 The installer is safe to run again. It updates what it installed and **never overwrites your own files.**
 
-1. It clones the kit to `~/.claude/claude-code-kit`, or updates an existing copy.
+1. It clones the kit to `~/.claude/claude-companion`, or updates an existing copy.
 2. It installs the plugin through Claude Code's plugin marketplace.
 3. It adds one import line to `~/.claude/CLAUDE.md`, so Claude follows [the coding rules](config/CLAUDE.md). Your own rules stay where they are.
 4. It sets `"tui": "fullscreen"` in `~/.claude/settings.json`, but only if you have not chosen a `tui` value yourself. The pane docks in the fullscreen view.
@@ -198,18 +197,14 @@ Every 1,000 fresh tokens Claude spends gives it one point; tokens read back from
 claude plugin uninstall companion-kit
 ```
 
-If you used the installer, also remove the `@…/claude-code-kit/config/CLAUDE.md` line from `~/.claude/CLAUDE.md`. Then delete `~/.claude/claude-code-kit` and, if you added it, `~/.claude/output-styles/focus.md`.
+If you used the installer, also remove the `@…/claude-companion/config/CLAUDE.md` line from `~/.claude/CLAUDE.md`. Then delete `~/.claude/claude-companion` and, if you added it, `~/.claude/output-styles/focus.md`.
 
 <br>
-
-## Contributing
-
-Ideas, new games, new helpers and bug reports are all welcome. See [CONTRIBUTING.md](CONTRIBUTING.md). The one rule: keep it calm.
 
 ## Credits
 
 - The Focus output style is adapted from [ayghri/i-have-adhd](https://github.com/ayghri/i-have-adhd) (MIT).
-- claude-code-kit is a community project. It is not affiliated with or endorsed by Anthropic.
+- claude-companion is a community project. It is not affiliated with or endorsed by Anthropic.
 
 ## License
 
